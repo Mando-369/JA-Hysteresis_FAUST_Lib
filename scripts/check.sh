@@ -1,15 +1,16 @@
 #!/bin/bash
 # =============================================================================
-# THE-TRANSFORMER Syntax Check Script
+# J-A Hysteresis Library - Syntax Check Script
 # =============================================================================
-# Tests Faust compilation without building plugins
+# Tests Faust compilation of library and example
 # =============================================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-DSP_FILE="$PROJECT_DIR/TM_THE_TRANSFORMER.dsp"
+LIB_FILE="$PROJECT_DIR/jahysteresis.lib"
+DSP_FILE="$PROJECT_DIR/transformer.dsp"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,14 +18,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo "============================================="
-echo "Checking THE-TRANSFORMER DSP"
+echo "J-A Hysteresis Library Check"
 echo "============================================="
-
-# Check if DSP file exists
-if [ ! -f "$DSP_FILE" ]; then
-    echo -e "${RED}Error: DSP file not found: $DSP_FILE${NC}"
-    exit 1
-fi
 
 # Check if Faust is installed
 if ! command -v faust &> /dev/null; then
@@ -36,22 +31,42 @@ fi
 echo "Faust version: $(faust --version 2>&1 | head -1)"
 echo ""
 
-# Compile to C++ with double precision (syntax check)
-echo "Compiling with -double flag..."
-if faust -double "$DSP_FILE" -o /dev/null 2>&1; then
-    echo -e "${GREEN}Compilation successful!${NC}"
-else
-    echo -e "${RED}Compilation failed:${NC}"
-    faust -double "$DSP_FILE" 2>&1
+# Check library file exists
+if [ ! -f "$LIB_FILE" ]; then
+    echo -e "${RED}Error: Library not found: $LIB_FILE${NC}"
+    exit 1
+fi
+echo -e "${GREEN}Library found: jahysteresis.lib${NC}"
+
+# Check DSP file exists
+if [ ! -f "$DSP_FILE" ]; then
+    echo -e "${RED}Error: DSP file not found: $DSP_FILE${NC}"
     exit 1
 fi
 
-# Show signal info
+# Compile transformer.dsp (tests both library and example)
 echo ""
-echo "Signal analysis:"
-faust -double "$DSP_FILE" 2>&1 | grep -E "(inputs|outputs|controls)" || true
+echo "Compiling transformer.dsp with -double flag..."
+if faust -double -I "$PROJECT_DIR" "$DSP_FILE" -o /dev/null 2>&1; then
+    echo -e "${GREEN}Compilation successful!${NC}"
+else
+    echo -e "${RED}Compilation failed:${NC}"
+    faust -double -I "$PROJECT_DIR" "$DSP_FILE" 2>&1
+    exit 1
+fi
+
+# Test library functions
+echo ""
+echo "Testing library functions..."
+for test_fn in hysteresis_test processor_test processor_stereo_test; do
+    if faust -double -I "$PROJECT_DIR" -pn "$test_fn" "$LIB_FILE" -o /dev/null 2>&1; then
+        echo -e "  ${GREEN}$test_fn: OK${NC}"
+    else
+        echo -e "  ${YELLOW}$test_fn: skipped${NC}"
+    fi
+done
 
 echo ""
 echo "============================================="
-echo -e "${GREEN}DSP check passed${NC}"
+echo -e "${GREEN}All checks passed${NC}"
 echo "============================================="

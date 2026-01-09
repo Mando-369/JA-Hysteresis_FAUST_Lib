@@ -1,42 +1,71 @@
 #!/bin/bash
 # =============================================================================
-# THE-TRANSFORMER Install Script
+# J-A Hysteresis Library - Install Script
 # =============================================================================
-# Copies built plugins to system plugin folders
+# Installs jahysteresis.lib to Faust library path
 # =============================================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-BUILD_DIR="$PROJECT_DIR/build"
+LIB_FILE="$PROJECT_DIR/jahysteresis.lib"
 
-VST3_INSTALL="$HOME/Library/Audio/Plug-Ins/VST3"
-AU_INSTALL="$HOME/Library/Audio/Plug-Ins/Components"
+# Faust library paths (check common locations)
+FAUST_LIB_PATHS=(
+    "/usr/local/share/faust"
+    "/usr/share/faust"
+    "$HOME/.faust"
+    "/opt/homebrew/share/faust"
+)
 
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo "Installing plugins..."
+echo "============================================="
+echo "Installing jahysteresis.lib"
+echo "============================================="
 
-# Install VST3
-if ls "$BUILD_DIR"/*.vst3 1> /dev/null 2>&1; then
-    mkdir -p "$VST3_INSTALL"
-    cp -R "$BUILD_DIR"/*.vst3 "$VST3_INSTALL/"
-    echo -e "${GREEN}VST3 installed to: $VST3_INSTALL${NC}"
-else
-    echo -e "${YELLOW}No VST3 found in build folder${NC}"
+# Check library exists
+if [ ! -f "$LIB_FILE" ]; then
+    echo -e "${RED}Error: Library not found: $LIB_FILE${NC}"
+    exit 1
 fi
 
-# Install AU
-if ls "$BUILD_DIR"/*.component 1> /dev/null 2>&1; then
-    mkdir -p "$AU_INSTALL"
-    cp -R "$BUILD_DIR"/*.component "$AU_INSTALL/"
-    echo -e "${GREEN}AU installed to: $AU_INSTALL${NC}"
+# Find Faust library path
+FAUST_LIB=""
+for path in "${FAUST_LIB_PATHS[@]}"; do
+    if [ -d "$path" ]; then
+        FAUST_LIB="$path"
+        break
+    fi
+done
+
+if [ -z "$FAUST_LIB" ]; then
+    echo -e "${YELLOW}No standard Faust library path found${NC}"
+    echo "Creating ~/.faust directory..."
+    FAUST_LIB="$HOME/.faust"
+    mkdir -p "$FAUST_LIB"
+fi
+
+echo "Installing to: $FAUST_LIB"
+
+# Copy library
+if cp "$LIB_FILE" "$FAUST_LIB/" 2>/dev/null; then
+    echo -e "${GREEN}Installed: $FAUST_LIB/jahysteresis.lib${NC}"
 else
-    echo -e "${YELLOW}No AU found in build folder${NC}"
+    echo -e "${YELLOW}Permission denied. Trying with sudo...${NC}"
+    sudo cp "$LIB_FILE" "$FAUST_LIB/"
+    echo -e "${GREEN}Installed: $FAUST_LIB/jahysteresis.lib${NC}"
 fi
 
 echo ""
-echo "Done. Restart your DAW to load the plugin."
+echo "============================================="
+echo -e "${GREEN}Installation complete${NC}"
+echo "============================================="
+echo ""
+echo "Usage:"
+echo "  ja = library(\"jahysteresis.lib\");"
+echo "  process = ja.processor_stereo_ui;"
