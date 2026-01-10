@@ -6,7 +6,7 @@
 // =============================================================================
 
 import("stdfaust.lib");
-ja = library("jahysteresis.lib");
+hy = library("hysteresis.lib");
 
 declare name "Transformer";
 declare author "Thomas Mandolini";
@@ -104,7 +104,7 @@ input_stage = _ * input_gain;
 
 wet_chain = (_ * saturation_drive * ja_calibration)
           : pre_eq
-          : ja.hysteresis(Ms, a_param, alpha_param, k_param, c_param)
+          : hy.ja_hysteresis(Ms, a_param, alpha_param, k_param, c_param)
           : (_ * ja_norm)
           : dc_blocker
           : post_eq

@@ -169,21 +169,25 @@ dc_blocker = fi.SVFTPT.HP2(7.0, 0.7071);
 // SIGNAL CHAIN
 // =============================================================================
 
-input_stage = _ * input_gain;
+input_stage = *(input_gain);
 
-wet_chain = (_ * saturation_drive * ja_calibration)
-          : pre_eq
+// Signal flow: EQ shaping → drive into saturation → J-A hysteresis → normalize → inverse EQ
+wet_chain = pre_eq
+          : *(saturation_drive)
+          : *(ja_calibration)
           : ja_hysteresis(Ms, a_param, alpha_param, k_param, c_param)
-          : (_ * ja_norm)
+          : *(ja_norm)
           : dc_blocker
-          : post_eq
-          : (_ * ja_trim * drive_comp / ja_calibration);
+          : *(ja_trim)
+          : *(drive_comp)
+          : /(ja_calibration)
+          : post_eq;
 
 dry_chain = _;
 
-mix_stage = _ <: (wet_chain : _ * mix), (dry_chain : _ * (1.0 - mix)) :> _;
+mix_stage = _ <: (wet_chain : *(mix)), (dry_chain : *(1.0 - mix)) :> _;
 
-output_stage = _ * output_gain;
+output_stage = *(output_gain);
 
 // =============================================================================
 // COMPLETE TRANSFORMER

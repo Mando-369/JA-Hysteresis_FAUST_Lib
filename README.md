@@ -1,6 +1,6 @@
-# jahysteresis.lib
+# hysteresis.lib
 
-Jiles-Atherton magnetic hysteresis library for GRAME Faust.
+Magnetic hysteresis library for GRAME Faust. Official prefix: `hy`
 
 ## What is Jiles-Atherton Hysteresis?
 
@@ -41,34 +41,33 @@ Unlike simple waveshapers (tanh, soft-clip), J-A hysteresis is **state-dependent
 
 ```faust
 import("stdfaust.lib");
-ja = library("jahysteresis.lib");
+hy = library("hysteresis.lib");
 
 // Stereo processor with UI
-process = ja.processor_stereo_ui;
+process = hy.ja_processor_stereo_ui;
 
 // Core function only
-process = _ : ja.hysteresis(380, 720, 0.015, 380, 0.25) : _;
+process = _ : hy.ja_hysteresis(380, 720, 0.015, 380, 0.25) : _;
 ```
 
 ## Functions
 
 | Function | Description |
 |----------|-------------|
-| `ja.hysteresis(Ms,a,alpha,k,c)` | Core hysteresis, no gain staging |
-| `ja.processor(Ms,a,alpha,k,c,drive,trim)` | With drive, normalization, DC block |
-| `ja.processor_stereo(...)` | Stereo version |
-| `ja.processor_ui` | Mono with UI controls |
-| `ja.processor_stereo_ui` | Stereo with UI controls |
+| `hy.ja_hysteresis(Ms,a,alpha,k,c)` | Core hysteresis, no gain staging |
+| `hy.ja_processor(Ms,a,alpha,k,c,drive,trim)` | With drive, normalization, DC block |
+| `hy.ja_processor_stereo(...)` | Stereo version |
+| `hy.ja_processor_ui` | Mono with UI controls |
+| `hy.ja_processor_stereo_ui` | Stereo with UI controls |
 
 ## References
 
 - Jiles, D.C. & Atherton, D.L. (1986). "Theory of ferromagnetic hysteresis." *Journal of Magnetism and Magnetic Materials*, 61(1-2), 48-60.
 - [Wikipedia: Jiles-Atherton Model](https://en.wikipedia.org/wiki/Jiles-Atherton_model)
-- [Magnetization Dynamics in Audio](https://www.sciencedirect.com/science/article/abs/pii/S0304885321006466)
 
 ## License
 
-LGPL-2.1 with FAUST exception (see jahysteresis.lib header)
+LGPL-2.1 with FAUST exception (see hysteresis.lib header)
 
 ## Author
 
