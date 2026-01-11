@@ -1,5 +1,10 @@
 .DS_Store
 .claude/
 *.backup
+*_backup.dsp
 Transformer/
 faustlibraries/
+
+# JUCE build outputs
+jahyst_transformer_demo/
+test_transformer/
