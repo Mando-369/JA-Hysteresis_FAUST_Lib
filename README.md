@@ -22,6 +22,20 @@ Unlike simple waveshapers (tanh, soft-clip), J-A hysteresis is **state-dependent
 | `alpha` | Mean-field coupling | Domain interaction strength |
 | `c` | Reversibility | Ratio of reversible magnetization |
 
+## Musical Character
+
+The `c` (reversibility) and calibration parameters work together to define the sonic character:
+
+| Calibration | c | Character |
+|-------------|-----|-----------|
+| -50 dB | 0.25 | Forward, open, dynamic |
+| 0 dB | 0.9 | Compressed, set back, controlled |
+
+- **Forward/Open**: Lower calibration + lower c = signal operates in transition zone with more irreversible magnetization. Dynamic, present sound.
+- **Compressed**: Higher calibration + higher c = signal hits saturation with more reversible response. Controlled, set back sound.
+
+Blend between these extremes for different textures.
+
 ## Capabilities
 
 - Physics-based magnetic saturation with memory
